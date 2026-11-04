@@ -1,0 +1,14 @@
+{
+  "name": "bots",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "lint": "biome check",
+    "format": "biome check --write"
+  },
+  "packageManager": "pnpm@11.23.0",
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15"
+  }
+}

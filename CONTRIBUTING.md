@@ -8,10 +8,11 @@ Thanks for helping. The skill is three things that must agree with each other:
 
 ## Setup
 
-You need Node.js 18 or later; there's nothing to install. For `--shot`, have Chrome, Chromium, Brave or Edge installed (or set `CHROME_PATH`).
+You need Node.js 18 or later. The kit has no dependencies; `pnpm install` only adds Biome for linting. For `--shot`, have Chrome, Chromium, Brave or Edge installed (or set `CHROME_PATH`).
 
 ```sh
 node --test tests/*.test.mjs
+pnpm lint   # Biome; pnpm format fixes what it can
 ```
 
 ## Changing the kit

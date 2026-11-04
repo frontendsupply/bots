@@ -108,6 +108,7 @@ git clone https://github.com/frontendsupply/bots ~/.claude/skills/bots
 
 ```sh
 node --test tests/*.test.mjs                                # engine, validator and build tests
+pnpm lint                                                   # Biome (pnpm format fixes)
 node kit/build.mjs examples/cat-fish/cat-fish.json --shot   # rebuild an example
 ```
 
