@@ -1,0 +1,35 @@
+{
+  "skill_name": "bots",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/bots cat fish",
+      "expected_output": "avatars/cat-fish/cat-fish.json plus the three SVGs and preview.html, built with `kit/build.mjs --shot` ending in ✓. The character reads as a cat-fish hybrid at a glance: cat ears plus fish fins, tail or barbels that break the disc's outline. Its idle is calm (2–4 beats of idle, breathe or glance, no effects), its working loop has 2–3 busy beats (about 4–6 s) with the signature move and effect, at least one custom action, at least one custom effect, and at least two custom layers with loop or react. Its color is a palette name. The agent looked at frames.png, nothing is clipped during jumps, and the reply gives the personality, the beats, the files and an <img> snippet.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/bots flying tiger",
+      "expected_output": "avatars/flying-tiger/flying-tiger.json built clean. Stripes, tiger ears and two wings; each wing is its own layer pivoting at its root, flaps symmetrically, and stays clear of the ears. Wings react to moods: fast when excited, drooping when sad. A custom flying or hovering move and a custom effect (feathers, roar lines or similar). The same structural requirements as eval 1, and frames.png was checked.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Can you make an animated avatar for our support chatbot? It's called Pip and should feel like a friendly little lighthouse. We'll show it next to every reply, so it needs to work small.",
+      "expected_output": "The skill triggers without the /bots slash command. It writes avatars/pip/pip.json (or a lighthouse slug) named Pip, reading as a lighthouse at 48px (a lamp or beam, stripes or a cap) with a gentle, helpful personality. The working state reads as busy and helpful (a sweeping beam or similar), and sleeping dims or rests. All three SVGs are built clean, and the reply includes an <img> snippet.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "/bots grumpy espresso cup that perks up",
+      "expected_output": "A character whose working beats tell the story in the prompt: it starts grumpy (angry or skeptic beats with a fitting effect such as grawlix or steam) and visibly perks up (laugh, pop or bop with sparkles or a custom effect). A cup handle and steam or crema details. Built clean, frames checked.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "/bots sleepy cloud",
+      "expected_output": "A soft cloud character (puffs drawn as line art breaking the disc's outline) with a drowsy personality: slow loops (1.2–3 s), a custom sleeping loop worth having (rain or drifting puffs), and at least one surprised or big moment so the idle loop isn't monotonous. Built clean, frames checked.",
+      "files": []
+    }
+  ]
+}
