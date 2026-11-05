@@ -21,7 +21,7 @@ Turn **$ARGUMENTS** into a finished character in one pass. If that's blank, or y
 
 **Output:** one character file, `avatars/<slug>/<slug>.json`, in the user's current project (or in the folder they name). The slug is the character's name if the user gives one ("a lighthouse called Pip" → `pip`), otherwise the concept, in lowercase with hyphens (`cat-fish`, `flying-tiger`). The build step writes the SVGs next to it. If the file already exists, treat the request as a redesign and replace it. Write and edit the JSON with your file tools. A quick find-and-replace for a repeated edit (both copies of a mirrored part) is fine; don't generate the file with a script. Keep it compact like the examples: one layer, beat or key list per line. Never edit the kit.
 
-Read `${CLAUDE_SKILL_DIR}/examples/turkey/turkey.json` first. It's a complete, working example of every field below. `examples/cat-fish` and `examples/flying-tiger` are two more.
+Read `${CLAUDE_SKILL_DIR}/examples/turkey/turkey.json` first. It's a complete, working original character: layers, custom actions and effects, and `idle` and `working` (it leaves `sleeping` to the default). `examples/cat-fish` (a custom mood, a custom sleeping loop, a `prompt`) and `examples/flying-tiger` are two more. None of them use `colors`, `disc` or drawn eyes and mouths; sections 0 and 4 describe those.
 
 ## 0. Famous characters: faithful first
 
@@ -95,7 +95,7 @@ The engine draws the eyes, brows and mouth for each mood, so don't draw a face i
 {
   "name": "Flying Tiger",                 // display name
   "prompt": "/bots flying tiger",         // the user's request, word for word as they typed it
-  "color": "orange",                      // palette name
+  "color": "orange",                      // palette name, or one of your own "colors"
   "parts": { "eyes": "dots", "mouth": "mood", "top": "none", "neck": "none", "extra": "none", "outline": "none" },
   "face": { "x": 50, "y": 50, "spacing": 6.5 },
   "colors": { "skin": "#ffddc7", "hair": "#f5901f" },   // known characters only: named flat colours, used as fill="hair" etc.
