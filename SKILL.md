@@ -19,7 +19,7 @@ Turn **$ARGUMENTS** into a finished character in one pass. If that's blank, or y
 
 `${CLAUDE_SKILL_DIR}` below is this skill's folder, the one that holds this SKILL.md. If your agent doesn't expand it, use that folder's path.
 
-**Output:** one character file, `avatars/<slug>/<slug>.json`, in the user's current project (or in the folder they name). The slug is the character's name if the user gives one ("a lighthouse called Pip" → `pip`), otherwise the concept, in lowercase with hyphens (`cat-fish`, `flying-tiger`). The build step writes the SVGs next to it. If the file already exists, treat the request as a redesign and replace it. Write and edit the JSON directly with your file tools; don't generate it with scripts. Keep it compact like the examples: one layer, beat or key list per line. Never edit the kit.
+**Output:** one character file, `avatars/<slug>/<slug>.json`, in the user's current project (or in the folder they name). The slug is the character's name if the user gives one ("a lighthouse called Pip" → `pip`), otherwise the concept, in lowercase with hyphens (`cat-fish`, `flying-tiger`). The build step writes the SVGs next to it. If the file already exists, treat the request as a redesign and replace it. Write and edit the JSON with your file tools. A quick find-and-replace for a repeated edit (both copies of a mirrored part) is fine; don't generate the file with a script. Keep it compact like the examples: one layer, beat or key list per line. Never edit the kit.
 
 Read `${CLAUDE_SKILL_DIR}/examples/turkey/turkey.json` first. It's a complete, working example of every field below. `examples/cat-fish` and `examples/flying-tiger` are two more.
 
@@ -27,12 +27,13 @@ Read `${CLAUDE_SKILL_DIR}/examples/turkey/turkey.json` first. It's a complete, w
 
 If the idea names something that already exists, people know exactly what it looks like. That covers cartoon and game characters, mascots, people and brands. The goal is a fan saying "that's Blossom from The Powerpuff Girls!" at first sight. A creature that merely shares one of the character's traits fails, and so does anything that reads as a ghost. In "our style" the house style is the *drawing*: flat fills, confident ink outlines, the off-register disc, the line boil. It is not the one-colour palette. Before drawing:
 
-- **Research it.** Search the web for its wiki or official page (appearance and personality), and study any image the user attached. **Look at several official pictures, not one:** a close-up of the face plus two or three other poses. An image search of the show's own art is the quickest way to see them side by side. A single picture can be an alternate or off-model design, so draw what most official art agrees on. If you can't see pictures, compare written descriptions from more than one source.
+- **Research it.** Search the web for its wiki or official page (appearance and personality), and study any image the user attached. **Look at several official pictures, not one:** a close-up of the face plus two or three other poses. An image search of the show's own art is the quickest way to see them side by side. A single picture can be an alternate or off-model design, so draw what most official art agrees on. For the face, trust close-ups: distant shots and small thumbnails lose details such as iris colour. When a close-up and the wiki agree (Flapjack's big blue irises), that is canonical. If you can't see pictures, compare written descriptions from more than one source.
 - **Write down what makes it recognisable**, most iconic first:
-  - **Head shape and proportions:** round or long, big or small eyes, how far the hair reaches.
+  - **Head silhouette and proportions, first:** round, pear, bullet, square or long; how wide the cheeks and jaw are against the top; big or small eyes; how far the hair reaches. A head that isn't round gets its own outline with `disc.shape` (section 4): Flapjack's head is a bulb, narrow on top and wide through the cheeks; Captain K'nuckles' is a bullet.
   - **Face:** eye style and size, skin colour, nose and mouth.
   - **Hair and silhouette,** then accessories.
-  - **Its canonical colours.**
+  - **Its canonical colours**, sampled from official art, not guessed.
+  - **Its signature expression:** the face it makes most, which becomes its resting and idle face (Flapjack's wide-open grin with two buck teeth, Courage's nervous toothy grin). A generic small smile is a different character.
   - **How it moves in its source:** walk, fly, hop, signature attacks, catchphrase gestures.
   - **Personality.**
 
@@ -60,7 +61,7 @@ If the idea names something that already exists, people know exactly what it loo
   Expressions change the lids. Cut the white of the eye with a slanted lid line for angry or determined. For thinking or plotting, glance the pupils up and to the side instead of using flat half-lids. If the eyes are too small under a straight hairline, the whole face reads as glasses.
 - **Make the effects look like the source's.** Match the shape, colour and direction. The Powerpuff flight streak is a straight band in the character's colour, with darker blocks and a broken pixel end, left behind as they shoot straight up. Effects never cross the face: breath blows forward and down from the mouth.
 - **Animate it the way it moves in its source.** Its signature movement becomes the custom action, and its powers become the effects. Hair locks, bows, ears, wings and tails react to moods: streaming back in a dash, bouncing in a cheer.
-- **Judge the frames against the reference, trait by trait.** Put frames.png next to the pictures and compare each feature's size, shape and placement. The usual misses are a feature at the wrong size (ears twice too big turn a man into a monkey) and the wrong shape (a wrap-around mustache drawn as two hanging braids). Would a fan name it at 48px? If it reads as something else, the skin, eyes or hair are wrong. Fix those first. If anything looks scary or creepy, it's wrong too: check the hair first, then eyes that are too intense.
+- **Judge the frames against the reference, trait by trait.** Put frames.png next to the pictures and write a short two-column list, reference against yours: silhouette, eyes (size, iris colour, pupils), brows, hair, nose, mouth, colours. Fix every row that differs before you show it, then check that nothing reads as something else (pointed hair tufts at the temples read as elf ears). The usual misses are a feature at the wrong size (ears twice too big turn a man into a monkey) and the wrong shape (a wrap-around mustache drawn as two hanging braids). Would a fan name it at 48px? If it reads as something else, the skin, eyes or hair are wrong. Fix those first. If anything looks scary or creepy, it's wrong too: check the hair first, then eyes that are too intense.
 
 ## 1. Brief (decide before drawing)
 
@@ -74,12 +75,12 @@ If the idea names something that already exists, people know exactly what it loo
 
 The look is a flat colour disc with off-register black ink line art. The kit prints the disc up to 2 units off the line art (it varies per character), so keep solid black fills about 2.5 units inside the head's edge, and let headbands or helmets overlap the head rather than just touch it.
 
-- **Every character is a head:** the disc, plus small parts that attach to it (section 0). **Nothing sits under it:** no shadow, ring, plate, bowl, puddle or floor line. The head floats on its own. viewBox is `-5 -10 110 110`. **The disc is centred at (50, 54) with r 28**, so it spans x 22–78 and y 26–82. Keep drawings inside x −3…103 and y −2…98. **At rest, put nothing above y 6**, because jumps lift the whole body by up to 15. A taller feature (a bow, horns, ears) needs small lifts: use your own moves with `y` no higher than −8, and skip `jump` and `pop`. A head piece that's tied on, like a bow or a hairband, goes in `front`; `top` makes it lag and lift like a loose hat. A lean pivots at the bottom of the head, so it swings tall headwear furthest. Keep leans under about 10°, and check the frames' left and right edges.
+- **Every character is a head:** the disc, plus small parts that attach to it (section 0). **Nothing sits under it:** no shadow, ring, plate, bowl, puddle or floor line. The head floats on its own. Effects may fall or pass below it (rain, drips, a thrown tool) as long as nothing rests there. viewBox is `-5 -10 110 110`. **The disc is centred at (50, 54) with r 28**, so it spans x 22–78 and y 26–82. Keep drawings inside x −3…103 and y −2…98. **At rest, put nothing above y 6**, because jumps lift the whole body by up to 15. A taller feature (a bow, horns, ears) needs small lifts: use your own moves with `y` no higher than −8, and skip `jump` and `pop`. A head piece that's tied on, like a bow or a hairband, goes in `front`; `top` makes it lag and lift like a loose hat. A lean pivots at the bottom of the head, so it swings tall headwear furthest. Keep leans under about 10°, and check the frames' left and right edges.
 - Every layer inherits the ink style: stroke `#151515`, width 1.8, round caps and joins, `fill none`. Only override it on purpose:
   - `fill="#fff"` for solid objects that should hide the disc (fins, horns, wing fronts, bones).
   - `fill="#151515" stroke="none"` for solid black (pupils, noses, stripes as shapes).
   - Thin detail: `stroke-width="1.2"`. Highlight: `stroke="#fff" stroke-width="2.4"`.
-- **Original characters use one colour:** the disc. `color` is a palette name: `blue`, `yellow`, `green`, `red`, `purple` or `orange`. No gradients, no other colours, and no text. Known characters use their canonical flat colours instead (section 0). To paint a part in the disc's own colour, use `fill="disc"` (or `stroke="disc"`): hair, ears or a tail that should match it.
+- **Original characters use one colour:** the disc. `color` is a palette name: `blue`, `yellow`, `green`, `red`, `purple` or `orange`. No gradients, no other colours, and no text. Known characters use their canonical flat colours instead (section 0). To paint a part in the disc's own colour, use `fill="disc"` (or `stroke="disc"`) anywhere: in layers, effects and eye drawings: hair, ears or a tail that should match it.
 - Use few, confident strokes: simple Q/C curves and at most ~6 drawn elements per layer. A `<g>` wrapper doesn't count, and several subpaths in one `d` are fine. Line art crossing the disc's edge is the style, so ears poke out and whiskers run past the rim.
 - To mirror around x = 50: `<g transform="translate(100 0) scale(-1 1)">…</g>`.
 - Allowed elements are `path circle ellipse rect line polyline polygon g`. Script, style, text, image, href and `on*` attributes are rejected.
@@ -99,6 +100,7 @@ The engine draws the eyes, brows and mouth for each mood, so don't draw a face i
   "face": { "x": 50, "y": 50, "spacing": 6.5 },
   "colors": { "skin": "#ffddc7", "hair": "#f5901f" },   // known characters only: named flat colours, used as fill="hair" etc.
   "disc": { "x": 50, "y": 58, "r": 27 },                // optional: move the head down a little to make room for tall headwear (default 50, 54, 28)
+  "disc": { "x": 50, "y": 56, "r": 30, "shape": "M50 26C66 26 …Z" }, // or: a head that isn't round, as an outline path
   "layers": [ /* drawings, see below */ ],
   "moods":   { /* optional custom expressions */ },
   "actions": { /* custom body moves */ },
@@ -109,6 +111,8 @@ The engine draws the eyes, brows and mouth for each mood, so don't draw a face i
 }
 ```
 
+**A head that isn't round:** set `disc.shape` to its outline path, in canvas coordinates. The colour fills that shape and is printed off-register like the circle. Keep `disc.x`, `y` and `r` roughly matching it: x, y is its centre and the squash pivot sits at y + r. Copy the same path into a `front` layer with no fill for its ink outline.
+
 **Layer:** `{ "at", "svg", "origin"?, "loop"?, "react"? }`
 
 | at | depth | moves with |
@@ -116,8 +120,10 @@ The engine draws the eyes, brows and mouth for each mood, so don't draw a face i
 | `back` | behind the disc | body. The disc hides the base, so wings, tails, fins and tentacles attach naturally |
 | `front` | over the disc | body (stripes, bellies, hair, held objects) |
 | `face` | over the disc and the eyes and mouth | body + head turns (noses, whiskers, snouts, an eye patch) |
-| `over` | over the face | body: bangs or a hat brim that covers the top of the eyes, masks |
-| `top` | over the disc | body + lagging hat motion (ears, horns, tufts) |
+| `over` | over the face | body: bangs or a hat brim that covers the top of the eyes, masks, a camera held to one eye |
+| `top` | over everything, `over` included | body + lagging hat motion (ears, horns, tufts). Keep filled shapes here off the eyes and brows |
+
+Draw order, bottom to top: `back`, the disc, `front`, the face (the engine's eyes and mouth, then your `face` layers), `over`, `top`. Layers with the same `at` draw in the order you list them, so a later disc-coloured shape can hide the root of an earlier one.
 
 - `origin` is the pivot, relative to the layer's own bounding box: the shapes' geometry, not counting stroke width (`"center"`, `"100% 50%"` = right-middle). Put it at the attachment point: a left wing uses `"100% 80%"`, a tail on the right uses `"0% 50%"`.
 - **Paired appendages (two wings, two ears) go in separate layers**, so each one pivots at its own root. Draw the second one mirrored inside its layer (`<g transform="translate(100 0) scale(-1 1)">`) and mirror its origin's x too (`"0% 80%"` instead of `"100% 80%"`). The motion runs outside your mirror transform, so **negate `r` and `x` in the mirrored layer's keys** to keep the pair symmetric.
@@ -126,7 +132,7 @@ The engine draws the eyes, brows and mouth for each mood, so don't draw a face i
 
 **Motion:** `{ "period"?: seconds, "keys": [[t, pose, ease?], …] }`
 - `t` runs 0…1 across the beat. With `period` set, `t` spans one cycle instead, and the engine stretches the period slightly so a whole number of cycles fills each beat. Nothing snaps at beat edges.
-- `pose` takes `x`, `y` (units, +y is down), `r` (degrees, + is clockwise), `sx`, `sy` (scale), `o` (opacity). Missing fields are at rest.
+- `pose` takes `x`, `y` (units, +y is down), `r` (degrees, + is clockwise), `sx`, `sy` (scale), `o` (opacity). Missing fields are at rest, except `o`: a key without it doesn't reset opacity, it blends between the nearest keys that set it. Put `"o": 1` on the keys either side of any fade.
 - `ease` applies to the segment that starts at that key:
   - `out`: decelerate (take-offs, settling)
   - `in`: accelerate (falls, wind-ups)
@@ -135,7 +141,7 @@ The engine draws the eyes, brows and mouth for each mood, so don't draw a face i
   - `back`: overshoot and settle (pops, landings, anything snappy)
   - `ioBack`: wind up, then overshoot (head turns)
   - `step`: holds the value until the next key, then jumps to it (frame swap, flicker, jitter)
-- Start and end every motion at rest `{}` so beats chain without snapping.
+- Start and end every motion at rest `{}` so beats chain without snapping. A full spin is the exception: `{ "period": 1, "keys": [[0, {}], [1, { "r": 360 }]] }` turns continuously (wheels, propellers, clock hands).
 
 **Custom action:** `"actions": { "strut": { "body": Motion, "face"?: Motion, "top"?: Motion } }`. Here `body` is the whole character with its pivot at the bottom centre, `face` shifts the features (x ±8 reads as a head turn), and `top` moves the hats and `top` layers.
 
@@ -145,7 +151,7 @@ The engine draws the eyes, brows and mouth for each mood, so don't draw a face i
 - `eye`: `base` (the character's own eyes), `dots`, `tiny`, `ring`, `wide`, `happy` (^), `closed` (‿) or `down`. It can also be your own SVG: one string for both eyes, or `[left, right]`.
 - `blink`: defaults to true, except for `happy` and `closed`. Set it to false for your own closed eyes.
 - `brow`: [left, right] paths drawn around each eye's centre.
-- `mouth`: a path around the mouth point, or one of `open`, `grit`, `o`, `osmall`.
+- `mouth`: a path (an ink outline), your own SVG (fills allowed: an open grin with teeth and a tongue, a fang, a scream), `none`, or one of `open`, `grit`, `o`, `osmall`. It's drawn around the mouth point, about 12 units below the eyes, before the ×1.3 face scale; wrap your SVG in `<g transform="translate(dx dy)">` to move it (a long jaw, a mouth beside a big nose). Use your own SVG whenever the character's mouth is part of who they are.
 
 ## 5. Built-ins (use freely alongside your own)
 
@@ -194,7 +200,7 @@ The engine draws the eyes, brows and mouth for each mood, so don't draw a face i
 
 Every avatar has three states, and each must be unmistakable at a glance. Someone looking at it should know whether the agent is waiting, busy or asleep.
 
-- **idle: waiting, ready to work.** Awake and attentive, but nearly still: a slow bob, a breath, a look to the side. 2–4 beats, 6–14 s, calm moods (`neutral`, `happy`, `cool`, or the character's resting face). Use only `idle`, `breathe`, `glance`, or a custom move within ±3 units, ±5° and scale ±5% (a gentle hover). **No effects.** A big move, an effect or a lively reaction in idle makes it look like it's working; the build refuses all three.
+- **idle: waiting, ready to work.** Awake and attentive, but nearly still: a slow bob, a breath, a look to the side. 2–4 beats, 6–14 s, calm moods (`neutral`, `happy`, `cool`, or the character's resting face). Use only `idle`, `breathe`, `glance`, or a custom move within ±3 units, ±5° and scale ±5% on every track (`face` included) (a gentle hover). **No effects.** A big move, an effect or a lively reaction in idle makes it look like it's working; the build refuses all three.
 - **working: busy.** **2–3 beats, about 4–6 s.** A focused face (`focus`, or the character's own determined mood) doing `hustle` or its signature move, with its signature effect. One beat can burst into a quick laugh or a big signature moment (the turkey's laugh and wobble, Blossom's launch on her pink streak). Start on the busy beat, so the switch from idle shows at once.
 - **sleeping:** eyes closed (`sleep`, or your own closed eyes with `"blink": false`), `breathe`, and `zzz` or your own drowsy effect. One beat is enough; the default is fine.
 - **Required uniqueness:** ≥ 1 custom action, ≥ 1 custom effect, and ≥ 2 custom layers with `loop` and/or `react`. Use built-ins for the rest.
@@ -211,7 +217,7 @@ Every avatar has three states, and each must be unmistakable at a glance. Someon
    - It validates the file and prints exact errors (`layers[2].react.laugh.keys[1]: unknown ease "bounce"`). Fix them until it prints ✓.
    - It writes `<slug>.svg` (idle), `<slug>-working.svg`, `<slug>-sleeping.svg` and `preview.html`.
    - With a Chrome, Chromium, Brave or Edge installed, it also writes `frames.png`.
-2. **Look at `frames.png`** (open it as an image). It shows the character large (look hard at the face there) and at 48px and 32px, then two paused frames inside every beat of each state, each labelled with its beat and time.
+2. **Look at `frames.png`** (open it as an image). It shows the character large (look hard at the face there) and at 48px and 32px, then paused frames at 30% and 65% of every beat (45% for beats under 1.2 s) in each state, each labelled with its beat and time. A quick effect that peaks between those moments won't show, so time it to be visible at one of them.
    - Ask yourself: does it read as $ARGUMENTS at a glance, even at 32px? Does the IDLE row look like waiting, clearly calmer than WORKING, and SLEEPING like sleep? For a known character, check it against the reference trait by trait. Is anything clipped at the top during jumps? Do appendages attach cleanly behind the disc? Do the effects fire where intended? Does every beat look different from the one before?
    - Fix the issues, build again and look once more.
    - Without `frames.png`, open `preview.html` in a browser tool if you have one; otherwise skip this step.

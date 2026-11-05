@@ -17,7 +17,7 @@
  * @typedef {{ at: 'back'|'front'|'face'|'over'|'top', svg: string, origin?: string, loop?: Motion, react?: Record<string, Motion> }} Layer
  * @typedef {{ eye: string | [string, string], brow?: [string, string], mouth: string, blush?: boolean, blink?: boolean }} Mood  eye: a built-in name or your own SVG (one for both eyes, or [left, right])
  * @typedef {{
- *   name: string, prompt?: string, color: string, colors?: Record<string, string>, disc?: { x?: number, y?: number, r?: number },
+ *   name: string, prompt?: string, color: string, colors?: Record<string, string>, disc?: { x?: number, y?: number, r?: number, shape?: string },
  *   parts?: Record<string, string>, face?: { x?: number, y?: number, spacing?: number },
  *   layers?: Layer[], moods?: Record<string, Mood>, actions?: Record<string, { body?: Motion, face?: Motion, top?: Motion }>,
  *   fx?: Record<string, Array<{ x: number, y: number, svg: string } & Motion>>,
@@ -97,6 +97,7 @@ const MOUTHS = {
   grit: `<rect x="-4.6" y="-2" width="9.2" height="4" rx="1.6" fill="${PAPER}"/>${p('M-4.6 0H4.6M-1.5-2V2M1.5-2V2')}`,
   o: `<ellipse rx="2" ry="2.6" fill="${PAPER}"/>`,
   osmall: `<ellipse rx="1.3" ry="1.6" fill="${PAPER}"/>`,
+  none: '',
 }
 
 /** expressions: eyes and brows are drawn per eye ([left, right] brows); mouth is a path or a MOUTHS key */
@@ -763,8 +764,12 @@ export function check(c) {
   }
   if (!COLORS[c.color] && !own[c.color])
     err('color', `one of the palette (${Object.keys(COLORS).join(', ')}) or a name from colors`)
-  for (const [k, v] of Object.entries(c.disc ?? {}))
-    if (!['x', 'y', 'r'].includes(k) || !Number.isFinite(v)) err(`disc.${k}`, 'x, y and r must be numbers')
+  for (const [k, v] of Object.entries(c.disc ?? {})) {
+    if (k === 'shape') {
+      if (typeof v !== 'string' || !/^[MmLlHhVvCcSsQqTtAaZz0-9.,\s-]{4,2000}$/.test(v))
+        err('disc.shape', 'a path "d" string (M, L, C, Q, A, Z and numbers) for the head outline')
+    } else if (!['x', 'y', 'r'].includes(k) || !Number.isFinite(v)) err(`disc.${k}`, 'x, y and r must be numbers')
+  }
   if (c.disc?.r !== undefined && !(c.disc.r >= 12 && c.disc.r <= 34)) err('disc.r', 'between 12 and 34')
   const moods = { ...MOODS, ...c.moods },
     actions = { ...ACTIONS, ...c.actions },
@@ -893,7 +898,9 @@ export function check(c) {
     } else if (!(m.eye === 'base' || m.eye in EYES))
       err(`moods.${name}.eye`, `use base, ${Object.keys(EYES).join(', ')}, or your own SVG`)
     if (m.blink !== undefined && typeof m.blink !== 'boolean') err(`moods.${name}.blink`, 'true or false')
-    if (typeof m.mouth !== 'string') err(`moods.${name}.mouth`, `a path or one of ${Object.keys(MOUTHS).join(', ')}`)
+    if (typeof m.mouth !== 'string')
+      err(`moods.${name}.mouth`, `a path, your own SVG or one of ${Object.keys(MOUTHS).join(', ')}`)
+    else if (m.mouth.trim().startsWith('<')) svgOk(`moods.${name}.mouth`, m.mouth)
   }
   if (!errs.length)
     for (const state of STATES) {
@@ -908,12 +915,21 @@ const tf = (q) =>
   `transform:translate(${f(q.x ?? 0)}px,${f(q.y ?? 0)}px) rotate(${f(q.r ?? 0)}deg) scale(${f(q.sx ?? 1)},${f(q.sy ?? 1)})` +
   (q.o === undefined ? '' : `;opacity:${q.o}`)
 
-/** render a timeline track ([seconds, css, ease]) as @keyframes; later keys win at equal times */
+/**
+ * render a timeline track ([seconds, css, ease]) as @keyframes. Two keys at the same moment with different values are
+ * a jump (a 360° spin wrapping to 0, one beat handing over to the next), so both stay, a hair apart; otherwise the
+ * later key wins.
+ */
 function keyframes(name, keys, T) {
   const ks = []
+  const hair = T * 2e-5 // 0.002% of the loop: distinct after rounding, invisible on screen
   for (const k of [...keys].sort((a, b) => a[0] - b[0])) {
-    if (ks.length && Math.abs(ks[ks.length - 1][0] - k[0]) < 1e-6) ks[ks.length - 1] = k
-    else ks.push(k)
+    const last = ks[ks.length - 1]
+    if (!last || Math.abs(last[0] - k[0]) >= 1e-6) ks.push(k)
+    else if (last[1] !== k[1] && k[0] - hair > Math.max(0, ks[ks.length - 2]?.[0] ?? 0)) {
+      ks[ks.length - 1] = [k[0] - hair, last[1], last[2]]
+      ks.push(k)
+    } else ks[ks.length - 1] = k
   }
   if (ks[0][0] > 0) ks.unshift([0, ks[0][1]])
   if (ks[ks.length - 1][0] < T) ks.push([T, ks[ks.length - 1][1]])
@@ -1028,7 +1044,8 @@ export function render(char, { state = 'idle', size = 128 } = {}) {
           : EYES[m.eye === 'base' ? t.eyes : m.eye]
     let svg = `<g ${blinks(m) ? blink : ''}>${at(-s, 0, eye(0))}${at(s, 0, eye(1))}</g>`
     if (m.brow) svg += at(-s, glassesUp, p(m.brow[0])) + at(s, glassesUp, p(m.brow[1]))
-    if (!ident || t.mouth === 'nose') svg += at(0, ident ? 10 : 9, MOUTHS[m.mouth] ?? p(m.mouth))
+    if (!ident || t.mouth === 'nose')
+      svg += at(0, ident ? 10 : 9, MOUTHS[m.mouth] ?? (m.mouth.trim().startsWith('<') ? tint(m.mouth) : p(m.mouth)))
     if (m.blush) svg += at(-s - 2, 5, BLUSH) + at(s + 2, 5, BLUSH)
     return `<g opacity="${name === beats[0][0] ? 1 : 0}" ${run(`m${name}`, '0 0', false)}>${svg}</g>`
   }
@@ -1126,8 +1143,13 @@ export function render(char, { state = 'idle', size = 128 } = {}) {
 
   const bx = f(D.x + ox),
     by = f(D.y + oy)
-  const body = `<circle cx="${bx}" cy="${by}" r="${D.r}" fill="${hex}"/>`
-  const defs = clip ? `<clipPath id="${id}c"><circle cx="${bx}" cy="${by}" r="${D.r}"/></clipPath>` : ''
+  // a head that isn't round (pear, bullet, square) is a path; it's printed off-register like the circle
+  const shape = /^[MmLlHhVvCcSsQqTtAaZz0-9.,\s-]{4,2000}$/.test(char.disc?.shape ?? '') && char.disc.shape
+  const head = shape
+    ? `<path d="${shape}" transform="translate(${f(ox)} ${f(oy)})"`
+    : `<circle cx="${bx}" cy="${by}" r="${D.r}"`
+  const body = `${head} fill="${hex}"/>`
+  const defs = clip ? `<clipPath id="${id}c">${head}/></clipPath>` : ''
   const faceLayer = clip ? `<g clip-path="url(#${id}c)">${faceSvg}</g>` : faceSvg
   const px = Math.min(1024, Math.max(16, Math.round(size) || 128))
 

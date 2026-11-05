@@ -228,6 +228,54 @@ test('idle stays calm: no effects, no lively moves, and the old script field is 
   )
 })
 
+test('a looping spin keeps every full turn (keys at the same moment both survive)', () => {
+  const spin = {
+    period: 1,
+    keys: [
+      [0, {}],
+      [1, { r: 360 }],
+    ],
+  }
+  const c = {
+    name: 'probe',
+    color: 'red',
+    idle: CALM_IDLE,
+    working: [['happy', 'idle', '', 4]],
+    layers: [{ at: 'top', svg: '<path d="M40 20h20"/>', react: { happy: spin } }],
+  }
+  assert.equal(render(c, { state: 'working' }).match(/rotate\(360deg\)/g)?.length, 4)
+})
+
+test('a head can have its own shape, and a mood its own filled mouth', () => {
+  const pear = 'M50 26C66 26 74 40 78 58C82 78 68 86 50 86C32 86 18 78 22 58C26 40 34 26 50 26Z'
+  const grin = '<path d="M-5 0Q0 6 5 0Z" fill="tongue"/>'
+  const c = {
+    name: 'probe',
+    color: 'skin',
+    colors: { skin: '#f1c48f', tongue: '#e0566f' },
+    disc: { y: 56, r: 30, shape: pear },
+    moods: { grin: { eye: 'base', mouth: grin }, quiet: { eye: 'base', mouth: 'none' } },
+    idle: [
+      ['grin', 'idle', '', 4],
+      ['quiet', 'glance', '', 4],
+    ],
+    working: [['grin', 'bop', '', 6]],
+  }
+  assert.equal(check(c).join('\n'), '')
+  const svg = render(c)
+  assert.match(
+    svg,
+    /<path d="M50 26C66[^"]*" transform="translate\([-\d.]+ [-\d.]+\)" fill="#f1c48f"\/>/,
+    'the head is the shape, off-register',
+  )
+  assert.ok(svg.includes('<path d="M-5 0Q0 6 5 0Z" fill="#e0566f"/>'), 'the mouth keeps its fill, in a named colour')
+  assert.match(check({ ...c, disc: { shape: 'M0 0" onload="x' } }).join('\n'), /disc\.shape/)
+  assert.match(
+    check({ ...c, moods: { grin: { eye: 'base', mouth: '<script>x</script>' } } }).join('\n'),
+    /moods\.grin\.mouth/,
+  )
+})
+
 test('names are escaped and size is clamped', () => {
   const svg = render({ ...turkey, name: '"><script>alert(1)</script>' }, { size: 99999 })
   assert.ok(!svg.includes('<script'))
